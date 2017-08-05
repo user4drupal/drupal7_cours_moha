@@ -1,0 +1,171 @@
+<?php
+
+function formation_menu() {
+	
+	 $items['formation'] = array(
+    'title' => 'Formation',
+    'page callback' => 'formation_page',
+    'access callback' => TRUE,
+    'file' => 'formation.page.inc',
+  );
+
+   $items['formation/accueil'] = array(
+    'title' => 'Welcome',
+    'file' => 'formation.page.inc',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => '0',
+  );
+
+   $items['formation/liste-noeuds'] = array(
+    'title'           => 'Node list',
+    'page callback'   => 'formation_liste_noeuds_page',
+    'access callback' => TRUE,
+    'type'            => MENU_LOCAL_TASK,            // type "onglet".
+    'weight'          => '1',
+    'file'            => 'formation.page.inc',
+  );
+
+
+   $items['formation.rss'] = array(
+    'title' => 'Formation flux',
+    'page callback' => 'formation_rss',
+    'access callback' => TRUE,
+    'type'            => MENU_CALLBACK,
+    'file' => 'formation.page.inc',
+  );
+
+   $items['node/%node/stats'] = array(
+    'title'            => 'Statistics',
+    'page callback'    => 'formation_statistics_page',
+    'page arguments'   => array(1),       // node_load(%node)
+    //'access callback'  => 'formation_access',
+    'access arguments' => array(1),
+    'type'             => MENU_LOCAL_TASK,          // type "onglet"
+    'weight'           => '150',
+    'context'          => MENU_CONTEXT_INLINE | MENU_CONTEXT_PAGE,
+    'file'             => 'formation.page.inc',
+  );
+
+  $items['formation/calculatrice'] = array(
+    'title'            => 'Calculator',
+    'description'      => 'Formation module calculatrice',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('formation_calculatrice'),
+    'access callback'  => 'user_access',
+    'access arguments' => array('access formation'),
+    'type'             => MENU_LOCAL_TASK,
+    'weight'           => '2',
+    'file'             => 'formation.form.inc',
+  );
+
+  $items['admin/appearance/block-color'] = array(
+    'title'            => 'Blocks color',
+    'type'             => MENU_LOCAL_TASK,
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('formation_block_color_admin_form'),
+    'access callback'  => 'user_access',
+    'access arguments' => array('access formation'),
+    'file'             => 'formation.form.inc',
+  );
+
+  return $items;
+}
+
+function formation_block_info() {
+	$blocks['welcome'] = array(
+	'info'   => t('Welcome message'),
+    'status' => 1,
+    'region' => 'sidebar_second',
+);
+
+  $blocks['node_count'] = array(
+  'info'   => t('Count nodes per type'),
+);
+
+  
+
+
+	return $blocks;
+}
+
+function formation_block_view($delta = '') {
+  $block = array();
+
+	switch ($delta) {
+  	case 'welcome':
+  	  $block = array(
+  	    'subject' => t('Welcome'),
+  	    'content' => t('Welcome boubritta. It is !time.', array('!time' => date('H:i'))),
+  	  );
+  	break;
+	  
+    case 'node_count':
+      $block = array(
+        'subject' => t('Node count'),
+        'content' =>  formation_node_count_content(),
+      );
+    break;
+
+      
+  }
+
+	return $block;
+}
+
+function formation_node_count_content(){
+  $query = db_select('node', 'n')
+    ->fields('n', array('type'))
+    ->groupBy('type');
+  $query->addExpression('COUNT(1)', 'total');
+  $result = $query->execute();
+
+  foreach ($result as $record){
+    //dpm($record);
+    $rows[] = array(
+      'type' => t(node_type_get_name($record->type)),
+      'total' => $record->total,
+      );
+  }
+  $variables = array(
+    'header' => array(t('Type'), t('Total')),
+    'rows'   => $rows,
+  );
+  return theme('table', $variables);
+
+}
+
+
+function formation_node_view($node, $view_mode, $langcode) {
+  //dpm($node);
+  // On teste que le mode d'affichage est bien "full node"
+  // pour ne pas incrémenter le compteur quand le noeud
+  // est affiché dans une liste ou autrement que sur sa page.
+  if ($view_mode == 'full') {
+    db_merge('formation_count')
+      ->key(array('nid' => $node->nid))
+      // L'entrée en base existe.
+      ->expression('compteur', 'compteur + 1')
+      // L'entrée en base n'existe pas.
+      ->fields(array('nid' => $node->nid, 'compteur' => '1'))
+      ->execute();
+  }
+}
+
+
+function formation_node_delete($node) {
+  // On supprime l'enregistrement dans la table formation_count
+  // à chaque fois qu'un noeud est effacé.
+  db_delete('formation_count')
+    ->condition('nid', $node->nid)
+    ->execute();
+}
+
+function formation_get_compteur($nid) {
+  return db_select('formation_count', 'fc')
+           ->fields('fc', array('compteur'))
+           ->condition('fc.nid', $nid, '=')
+           ->execute()
+           ->fetchField();
+}
+
+

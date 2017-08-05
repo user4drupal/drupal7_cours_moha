@@ -1,0 +1,35 @@
+<?php
+/*
+ * @file
+ * Display a Summary of your Drupal Installation.
+ */
+/**
+ * Implementation of hook_help()
+ */
+function summary_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#summary':
+      return '<p>' . t('Sample module from Atelier Drupal book. This module 
+provide a summary page of your Drupal Installation.') . '</p>';
+  }
+}
+
+/*
+ * Implementation of hook_menu()
+ */
+function summary_menu() {
+  $items['summary'] = array(
+    'title' => 'Summary of your site',
+    'access arguments' => array(true),
+    'type' => MENU_CALLBACK, 
+    'page callback' => 'summary_content',
+  );
+  return $items; 
+}
+
+/*
+ * Content of the summary page
+ */
+function summary_content() {
+return 'Hello World !!!';
+}

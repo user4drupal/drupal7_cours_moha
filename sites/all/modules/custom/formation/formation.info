@@ -1,0 +1,15 @@
+; Nom du module pour l'interface.
+name = Formation
+
+; Description du module pour l'interface.
+description = Module pour la formation Drupal 7 Développeur.
+
+; Version du module.
+version = 7.x-1.0
+
+; Version de Drupal.
+core = 7.x
+
+; Section dans laquelle se trouve le module sur admin/modules.
+package = Formation
+
