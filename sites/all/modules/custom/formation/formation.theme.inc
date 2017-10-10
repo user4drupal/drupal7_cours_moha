@@ -1,4 +1,21 @@
 <?php
+
+/**
+ * Implements hook_theme().
+ */
+function formation_theme($existing, $type, $theme, $path) {
+  return array(
+    'formation_calculatrice' => array(
+      'render element' => 'form',
+      'template' => 'templates/formation-calculatrice',
+    ),
+    'formation_compteur' => array(
+      'variables' => array('compteur' => NULL, 'node' => NULL),
+      'template' => 'templates/formation-compteur',
+    )
+  );
+}
+
 function theme_formation_compteur($variables) {
   $compteur = $variables['compteur'];
   $node     = $variables['node'];

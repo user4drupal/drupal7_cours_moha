@@ -1,0 +1,35 @@
+<?php
+/**
+* @file
+* Display a Hello World block
+*/
+/**
+* Implementation of hook_block_info()
+*/
+function hello_block_info() {
+$block['hello-block'] = array(
+'info' => 'Hello world !',
+);
+return $block;
+}
+/**
+* Implementation of hook_block_view()
+*/
+function hello_block_view($delta = '') {
+$block = array(
+'subject' => 'First module say :',
+'content' => 'Hello World !!!'
+);
+return $block;
+}
+
+/**
+* Implementation of hook_help()
+*/
+function hello_help($path, $arg) {
+switch ($path) {
+case 'admin/help#hello':
+return '<p>' . t('Sample module from Atelier Drupal book. This module
+just provide a hello world block.') . '</p>';
+}
+}

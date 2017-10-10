@@ -1,35 +1,50 @@
 <?php
 /*
- * @file
- * Display a Summary of your Drupal Installation.
- */
+* @file
+* Display a Summary of your Drupal Installation.
+*/
 /**
- * Implementation of hook_help()
- */
+* Implementation of hook_help()
+*/
 function summary_help($path, $arg) {
   switch ($path) {
     case 'admin/help#summary':
-      return '<p>' . t('Sample module from Atelier Drupal book. This module 
+      return '<p>' . t('Sample module from Atelier Drupal book. This module
 provide a summary page of your Drupal Installation.') . '</p>';
   }
 }
 
 /*
- * Implementation of hook_menu()
- */
+* Implementation of hook_menu()
+*/
 function summary_menu() {
   $items['summary'] = array(
     'title' => 'Summary of your site',
     'access arguments' => array(true),
-    'type' => MENU_CALLBACK, 
+    'type' => MENU_CALLBACK,  
     'page callback' => 'summary_content',
-  );
-  return $items; 
+    );
+return $items;
 }
 
 /*
- * Content of the summary page
- */
-function summary_content() {
-return 'Hello World !!!';
+* Content of the summary page
+*/
+function summary_content(){
+  //List of all activated modules
+  $summary_module_list = module_list();
+  $summary_module_list = t('<h3>les module activés: </h3>').implode($summary_module_list,', ');
+  $output = $summary_module_list;
+  
+  //List of vocabularies
+  $list_vocabularies = taxonomy_get_vocabularies();
+  $summary_list_vocabularies = '';
+  foreach ($list_vocabularies as $vocab) {
+    $summary_list_vocabularies .= $vocab->name.', ';
+  }
+  $summary_list_vocabularies = t('<h3>Vocabularies list: </h3>').$summary_list_vocabularies;
+  $output .= $summary_list_vocabularies;
+
+  return $output;
+
 }
