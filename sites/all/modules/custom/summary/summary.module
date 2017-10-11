@@ -45,6 +45,15 @@ function summary_content(){
   $summary_list_vocabularies = t('<h3>Vocabularies list: </h3>').$summary_list_vocabularies;
   $output .= $summary_list_vocabularies;
 
+  //List node types
+  $node_type = node_type_get_types();
+  $list_node_type = '';
+  foreach ($node_type as $spinchou) {
+    $list_node_type .= $spinchou->name. ', ';
+  }
+  $list_node_type = t('<h3>Node type list: </h3>').$list_node_type;
+  $output .= $list_node_type;
+
   return $output;
 
 }
