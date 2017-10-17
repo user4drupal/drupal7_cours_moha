@@ -24,6 +24,15 @@ function summary_menu() {
     'type' => MENU_CALLBACK,  
     'page callback' => 'summary_content',
     );
+  $items['admin/config/system/summary'] = array(
+    'title' => t('Summary settings'),
+    'description' => t('Summary configuration page'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('summary_admin_settings'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_NORMAL_ITEM,
+    );
+
 return $items;
 }
 
@@ -33,8 +42,7 @@ return $items;
 function summary_content(){
   //List of all activated modules
   $summary_module_list = module_list();
-  $summary_module_list = t('<h3>les module activés: </h3>').implode($summary_module_list,', ');
-  $output = $summary_module_list;
+  $summary_module_list = '<h3>'.variable_get('summary_module_label',t('Modules')).'</h3>'.implode($summary_module_list,', ');
   
   //List of vocabularies
   $list_vocabularies = taxonomy_get_vocabularies();
@@ -42,18 +50,79 @@ function summary_content(){
   foreach ($list_vocabularies as $vocab) {
     $summary_list_vocabularies .= $vocab->name.', ';
   }
-  $summary_list_vocabularies = t('<h3>Vocabularies list: </h3>').$summary_list_vocabularies;
-  $output .= $summary_list_vocabularies;
-
-  //List node types
-  $node_type = node_type_get_types();
-  $list_node_type = '';
-  foreach ($node_type as $spinchou) {
-    $list_node_type .= $spinchou->name. ', ';
+  $summary_list_vocabularies = '<h3>'.variable_get('summary_taxonomy_label',t('Vocabularies')).'</h3>' .
+  $summary_list_vocabularies;
+  //List of node types  
+  $summary_node_types = node_type_get_types();
+  $summary_node_types_list = array();
+  foreach ($summary_node_types as $node_type) {
+  $summary_node_types_list[] = $node_type->name;
   }
-  $list_node_type = t('<h3>Node type list: </h3>').$list_node_type;
-  $output .= $list_node_type;
+  $summary_node_types_list = '<h3>'.variable_get('summary_content_types',t('Content types')).'</h3>' 
+  .implode($summary_node_types_list, ', ');
+ 
+  $display = variable_get('summary_display',array());
+  $output = '';
+  if ($display['module']) { $output .= $summary_module_list; }
+  if ($display['vocabulary']) { $output .= $summary_list_vocabularies; }
+  if ($display['content_type']) { $output .= $summary_node_types_list; }
+
 
   return $output;
+
+}
+
+/*
+* Define the adminsitration form
+*/
+function summary_admin_settings(){
+    $form['checkbox_visible'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Section visibility'),
+    '#description' => t('Things to show for the summary'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    );
+
+    $form['checkbox_visible']['summary_display'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Things to show for the summary'),
+    '#description' => t('Check the things to show in the summary page'),
+    '#options' => array('module' => t('Module list'), 'vocabulary' =>
+    t('Vocabulary list'), 'content_type' => t('Content types')),
+    '#default_value' => variable_get('summary_display',array('module','vocabulary')),
+    );
+
+    $form['labels'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Section visibility'),
+    '#description' => t('Things to show for the summary'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    );
+
+    $form['labels']['summary_module_label'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Label of the module section'),
+    '#description' => t('Change the label of the module section'),
+    '#default_value'=>variable_get('summary_module_label','Activate modules'),
+    );
+    
+    $form['labels']['summary_taxonomy_label'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Label of the taxonomy section'),
+    '#description' => t('Change the label of the taxonomy section'),
+    '#default_value'=>variable_get('summary_taxonomy_label','Taxonomy vocabularies'),
+    );
+    
+    $form['labels']['summary_content_types'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Label of the content types section'),
+    '#description' => t('Change the label of the content types section'),
+    '#default_value' => variable_get('summary_content_types','Content types'),
+    );
+
+  
+  return system_settings_form($form);
 
 }
