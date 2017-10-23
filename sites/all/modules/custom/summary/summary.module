@@ -40,9 +40,11 @@ return $items;
 * Content of the summary page
 */
 function summary_content(){
+  
   //List of all activated modules
   $summary_module_list = module_list();
   $summary_module_list = '<h3>'.variable_get('summary_module_label',t('Modules')).'</h3>'.implode($summary_module_list,', ');
+  
   
   //List of vocabularies
   $list_vocabularies = taxonomy_get_vocabularies();
@@ -52,6 +54,7 @@ function summary_content(){
   }
   $summary_list_vocabularies = '<h3>'.variable_get('summary_taxonomy_label',t('Vocabularies')).'</h3>' .
   $summary_list_vocabularies;
+  
   //List of node types  
   $summary_node_types = node_type_get_types();
   $summary_node_types_list = array();
@@ -60,6 +63,16 @@ function summary_content(){
   }
   $summary_node_types_list = '<h3>'.variable_get('summary_content_types',t('Content types')).'</h3>' 
   .implode($summary_node_types_list, ', ');
+
+  //Number of nodes
+  $query = 'SELECT type, count(*) AS count FROM {node} GROUP BY type';
+  $result = db_query($query);
+  $header = array (t('Node type'), '#');
+  while ($row = $result->fetchAssoc()) {
+  $rows[] = $row;
+  }
+  $table = theme('table', array ('header' => $header, 'rows' => $rows));
+  $summary_node_count_type = t('<h3>Number of nodes per type</h3>').$table;
  
   $display = variable_get('summary_display',array());
   $output = '';
@@ -67,6 +80,7 @@ function summary_content(){
   if ($display['vocabulary']) { $output .= $summary_list_vocabularies; }
   if ($display['content_type']) { $output .= $summary_node_types_list; }
 
+  $output .= $summary_node_count_type;
 
   return $output;
 
