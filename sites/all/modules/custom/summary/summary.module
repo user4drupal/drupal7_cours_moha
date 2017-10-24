@@ -140,3 +140,15 @@ function summary_admin_settings(){
   return system_settings_form($form);
 
 }
+
+/**
+* Implementation of hook_theme
+*/
+    function summary_theme () {
+      $functions = array(
+        'summary_paragraph' => array (
+          'variables' => array('title' => NULL, 'content' => NULL)
+        )
+    );
+    return $functions;
+}
