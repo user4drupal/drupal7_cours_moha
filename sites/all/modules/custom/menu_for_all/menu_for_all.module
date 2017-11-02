@@ -1,0 +1,118 @@
+<?php
+
+
+/**
+ * Implementation hook_help()
+ */
+function menu_for_all_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#menu_for_all':
+      $output = '<h3>A propos du module : Menu for all</h3>';
+      $output .= '<p>Exemple de module pour le livre : Drupal Avancé aux éditions Eyrolles</p>';
+      return $output;
+  }
+}
+
+
+/**
+ * Implementation hook_action_info()
+ */
+
+function menu_for_all_action_info() {
+  return array(
+    'menu_for_all_basic_action' => array(
+      'label' => t('Garder une trace dans le journal'),
+      'type' => 'system',
+      'configurable' => FALSE,
+      'triggers' => array('any'),
+    ),
+    'menu_for_all_unblock_user_action' => array(
+      'label' => t('Débloquer une action utilisateur'),
+      'type' => 'user',
+      'configurable' => FALSE,
+      'triggers' => array('any'),
+    ),
+    'menu_for_all_node_sticky_action' => array(
+      'type' => 'node',
+      'label' => t('Garder une trace des informations venant de la Home page'),
+      'configurable' => TRUE,
+      'behavior' => array('changes_property'),
+      'triggers' => array('node_presave', 'node_insert', 'node_update'),
+    ),
+  );
+}
+
+
+
+/**
+ * Implements hook_menu()
+ */
+function menu_for_all_menu() {
+  $items['examples/menu_for_all'] = array(
+    'title'           => 'Menu pour tous',
+    'description'     => 'Page d\'informations',
+    'page callback'   => '_menu_for_all_page',
+    'access callback' => TRUE,
+  );
+  return $items;
+}
+
+
+
+
+/**
+ * Action simple()
+ */
+function menu_for_all_basic_action(&$entity, $context = array()) {
+  drupal_set_message(t('Ajout dans le journal'));
+  watchdog('menu_for_all', 'Ajout dans le journal');
+}
+
+
+/**
+ * Action utilisateur()
+ */
+function menu_for_all_unblock_user_action(&$entity, $context = array()) {
+
+  // si c'est une entité
+  if (isset($entity->uid)) {
+    $uid = $entity->uid;
+  }
+  // si c'est un contenu
+  elseif (isset($context['uid'])) {
+    $uid = $context['uid'];
+  }
+  // Sinon bloquer l'utiliseur
+  else {
+    $uid = $GLOBALS['user']->uid;
+  }
+
+
+  $account = user_load($uid);
+  $account = user_save($account, array('status' => 1));
+  watchdog('menu_for_all', 'Décloquer utilisateur %name.', array('%name' => $account->name));
+  drupal_set_message('Décloquer utilisateur %name', array('%name' => $account->name));
+}
+
+
+/**
+ * Action home page()
+ */
+
+function menu_for_all_node_sticky_action($node, $context) {
+
+  // Recupère les informations utilisateurs
+  $account = user_load_by_name($context['author']);
+
+  // Vérifie si le créateur du noeud est l'utilisateur connecté
+  if ($account->uid == $node->uid) {
+    $node->promote = NODE_PROMOTED;
+    $node->sticky  = NODE_STICKY;
+
+    watchdog('action', '@type %title noeud activé par %username.', array('@type' => node_type_get_name($node), '%title' => $node->title, '%username' => $account->name));
+    drupal_set_message(t('@type %title noeud activé par utilisateur %username.', array('@type' => node_type_get_name($node), '%title' => $node->title, '%username' => $account->name)));
+  }
+}
+
+
+
