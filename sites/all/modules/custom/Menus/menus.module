@@ -1,0 +1,26 @@
+<?php
+function menus_entity_info() {
+   $entity = array();
+   $entity['menus'] = array(
+	// On définit l'étiquette du type d'entité
+	'label' => t('Menus'),
+	// La table définie dans le especes.install
+	'base table' => 'menus',
+	'uri callback' => 'menus_uri',
+	 //Le type d'entité contient des champs
+	'fieldable' => TRUE,
+	// On définit les clés liées à l'entité
+	'entity keys' => array(
+		// L'identifiant utilsée par entity_load
+		'id' => 'mid',
+		// La clé utilisé par field_attach pour charger les champs associés
+		'bundle' => 'type'
+	),
+	// La clé pour les bundles
+	'bundle keys' => array('bundle' => 'type'),
+	'bundles' => array()
+   );
+//Emplacement pour les définitions des bundles Diner et Gouter
+   return $entity;
+
+};

@@ -1,0 +1,25 @@
+<?php
+function menus_schema() {
+	$schema['menus'] = array(
+        'fields' => array(
+            'mid' => array(
+                'type' => 'serial',
+                'unsigned' => TRUE, 
+                'not null' => TRUE,
+                ),
+            'type' => array(
+                'description' => 'Le type de menus', 
+                'type' => 'text', 
+                'size' => 'medium', 
+                'not null' => TRUE
+                ),
+            'name' => array(
+                'type' => 'text',
+                'size' => 'medium'
+                ),
+            ),
+        /*On définit la clé primaire de la table */
+        'primary key' => array('mid')
+        );
+        return $schema;
+};
