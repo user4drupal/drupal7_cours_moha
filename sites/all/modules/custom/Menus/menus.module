@@ -21,6 +21,35 @@ function menus_entity_info() {
 	'bundles' => array()
    );
 //Emplacement pour les définitions des bundles Diner et Gouter
+   // Bundle Diner
+    $entity['menus']['bundle']['diner'] = array(
+	'label' => t('Diner'),
+	// On définit les éléments pour l'administration de ce type de menus
+	'admin' => array(
+		// Le chemin interne d'accès aux pages d'administration
+		'path' => 'admin/menus/%menus_type',
+		// Le chemin d'administration affiché aux utilisateurs
+		'real path' => 'admin/menus/diner',
+		// L'argument%especes_types doit être passé
+		'bundle argument' => 2,
+		// On ajoute la permission, ici on utilisera Administrer les nœuds
+		'access arguments' => array('administer nodes')
+	)	
+    );
+    
+   // Bundle Goûter
+    $entity['menus']['gouter'] = array(
+        'label' => t('Goûter'),
+        'admin' => array(
+            'path' => 'admin/menus/%menus_type',
+            'real path' => 'admin/menus/gouter',
+            'bundle argument' => 2,
+            'access arguments' => array('administer nodes')
+        )
+    );
    return $entity;
+}
 
-};
+function menus_uri($menus) {
+    return array('path' => 'menus/' .$menus->mid);
+}
