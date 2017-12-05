@@ -53,3 +53,47 @@ function menus_entity_info() {
 function menus_uri($menus) {
     return array('path' => 'menus/' .$menus->mid);
 }
+
+function menus_menu() {
+    $items = array();
+    
+    $items['admin/menus'] = array(
+        'title' => 'admin menus',
+        'access arguments' => array('access content'),
+        'page callback' => 'menus_admin',
+        'file' => 'menus.pages.inc',
+        'type' => MENU_NORMAL_ITEM
+    );
+    $items['admin/menus/%menus_type'] = array(
+        'title callback' => 'menus_type_title',
+        'title arguments' => array(2),
+        'access arguments' => array('access content'),
+        'page arguments' => array(2)
+    );
+    $items['admin/menus/%menus_type/add'] = array(
+        'title' => 'add',
+        'access arguments' => array('access content'),
+        'type' => MENU_DEFAULT_LOCAL_TASK
+    );
+    return $items;
+}
+/**
+  * Chargement de l'argument pour %ùenus_type
+  * Vérification de ce qui est passé comme argument
+  * pour éviter une injection
+**/
+function menus_type_load($menus_type){
+    switch($menus_type) {
+        case 'diner':
+        case 'gouter':
+            return $menus_type;
+        default :
+            return FALSE;
+    }
+}
+/**
+  * On retourne le type de l'objet
+**/
+function menus_type_title($menus_type) {
+    return $menus_type;
+}
