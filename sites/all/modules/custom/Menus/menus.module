@@ -75,6 +75,29 @@ function menus_menu() {
         'access arguments' => array('access content'),
         'type' => MENU_DEFAULT_LOCAL_TASK
     );
+    $items['menus/%menus'] = array(
+        'title callback' => 'menus_title',
+        'title arguments' => array(1),
+        'page callback' => 'menus_display_one',
+        'page arguments' => array(1),
+        'access arguments' => array('access content'),
+        'file' => 'menus.pages.inc',
+        'type' => MENU_CALLBACK
+        );
+    $items['menus/%menus/view'] = array(
+        'title' => 'view',
+        'access arguments' => array('access content'),
+        'weight' => -3,
+        'type' => MENU_DEFAULT_LOCAL_TASK
+    );
+    $items['menus/%menus/edit'] = array(
+        'title' => 'edit',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('menus_edit', 1),
+        'access arguments' => array ('access content'),
+        'file' => 'menus.pages.inc',
+        'type' => MENU_LOCAL_TASK
+    );
     return $items;
 }
 /**
@@ -96,4 +119,15 @@ function menus_type_load($menus_type){
 **/
 function menus_type_title($menus_type) {
     return $menus_type;
+}
+
+function menus_load($mid) {
+	// On utilise la fonction entity_load qui va retrouver
+	// l'entité avec son identifiant unique et le nom de la table
+    $menus = entity_load('menus', array($mid));
+    return $menus[$mid];
+}
+
+function menus_title($menus) {
+    return $menus->name;
 }

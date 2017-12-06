@@ -1,0 +1,5 @@
+name = Menus
+description = "Entité Menus et ses bundle (diner et gouter)"
+package = BookDev
+version = VERSION
+core = 7.x

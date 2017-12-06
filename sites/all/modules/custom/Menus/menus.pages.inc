@@ -82,3 +82,48 @@ function menus_addmenu_submit($form, &$form_state) {
             array('@type' => $menus->type))
             );
 }
+
+function menus_display_one($menu) {
+    // On récupère l'objet Menus charge par entity_load
+    $content[] = array(
+                '#markup' => array( $menu->name, 'menus/' . $menu->mid ),
+                );
+    // On attache également les champs supplémentaires
+    $content[] = field_attach_view('menus', $menu, 'full');
+    return $content;
+}
+
+function menus_edit($form, &$form_state, $menu) {
+    // On affiche le nom menu
+    $form['name'] = array(
+        '#type' => 'textfield',
+        '#title' => 'name',
+        '#default_value' => $menu->name
+    );
+    $form['menus'] = array(
+        '#type' => 'value',
+        '#value' => $menu
+    );
+    
+    $form['type'] = array(
+        '#type' => 'value',
+        '#value' => $menu->type
+    );
+
+    // On affiche aussi le formulaire des champs attachés
+    field_attach_form('menus', $menu, $form, $form_state);
+    // On sauvegarde les modifications
+    $form['actions'] = array('#type' => 'actions');
+    // On ajoute le bouton sauvegarde
+    $form['actions']['save'] = array(
+        '#type' => 'submit',
+        '#value' => 'save'
+    );
+    // On gére la suppression
+    $form['actions']['delete'] = array(
+        '#type' => 'submit',
+        '#value' => 'delete',
+        '#submit' => array('menus_edit_delete')
+    );
+    return $form;
+}
